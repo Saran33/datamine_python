@@ -85,7 +85,7 @@ class DatamineCon(object):
         retry = urllib3.util.Retry(read=3, backoff_factor=2, status_forcelist=[400])
         adapter = requests.adapters.HTTPAdapter(max_retries=retry)
         self.session.mount('', adapter)
-
+		
         self.path = path
         self.data_catalog = {}
         self._dataset = None
@@ -112,17 +112,23 @@ class DatamineCon(object):
         assert supplied_url == self.url + '/download'
         response = self._call_api('download', params, stream=True)
         try:
-            # The filename is embedded in the Content-Disposition header
+            # The filename is embedded in the Content-Disposition header	
             header = response.headers.get('content-disposition', '')
             try:
                 filename = cgi.parse_header(header)[1]['filename']
             except Exception:
+                # filename = '' #Saran
+                # print ('''File Handling Area, looking for Content-Disposition Header and Lacks a 'header'...''')
+                # print('Expected a "filename" entry in the Content-Disposition header found:\n  {}'.format(header))
+                # print('See log file for further detail.')
+                # logging.error(str(record['dataset']) + ' ' + str(supplied_url) + ' ' + ' ' + str(params) + ' ' + ('Expected a "filename" entry in the Content-# Disposition header found:\n  {}'.format(header)))
                 filename = 'error.txt'
                 print ('''File Handling Area, looking for Content-Disposition Header and Lacks a 'header'...''')
                 print('Expected a "filename" entry in the Content-Disposition header found:\n  {}'.format(header))
                 print('See log file for further detail.')
                 logging.error(str(record['dataset']) + ' ' + str(supplied_url) + ' ' + ' ' + str(params) + ' ' + ('Expected a "filename" entry in the Content-Disposition header found:\n  {}'.format(header)))
                 pass
+			
                              
             dest_path = os.path.join(self.path, record['dataset'])
             if not os.path.exists(dest_path):
